@@ -29,21 +29,8 @@ mypy:
     uv run mypy src
 
 # runs tests without anything else
-_test: test-single
-    @just _test_ver 3.13
-    @just _test_ver 3.12
-    @just _test_ver 3.11
-    @just _test_ver 3.10
-    @just _test_ver 3.9
-    @just _test_ver 3.8
-
-
-# runs python tests for a specific version
-_test_ver pyver:
-    # running tests for python {{pyver}}
-    @# NOTE: Using `uv` is vastly faster than using `tox`
-    @# Using --isolated avoids clobbering dev environment
-    @uv run --isolated --python {{pyver}} --only-group test pytest --quiet
+_test:
+    hatch test --all
 
 # Check for spelling issues
 spellcheck:

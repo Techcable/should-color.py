@@ -23,7 +23,6 @@ should_color(sys.stdout)
 should_color(sys.stderr)
 should_color('stdout')  # same as should_color(sys.stdout)
 should_color('stderr')  # same as should_color(sys.stdout)
-should_color()          # same as should_color(sys.stdout)`
 print(
     apply_ansi_style(
         "ERROR:",

@@ -176,6 +176,7 @@ def apply_bold(
         text,
         file=file,
         enabled=enabled,
+        bold=True,
     )
 
 

@@ -39,6 +39,8 @@ else:
 
 def should_color(
     file: KnownStream | IO[str] | IO[bytes] = "stdout",
+    *,
+    enabled: EnabledSpec = "auto",
 ) -> bool:
     """
     Determine if ANSI colors should be used when printing to the specified stream.
@@ -51,6 +53,12 @@ def should_color(
 
     On windows, if colorama is installed, this will implicitly call `just_fix_windows_console`.
     See [`platform_supports_colors`] for details.
+
+    The `enabled="always"` flag can be used to forcibly enable colors, returning `True` unconditionally.
+    Similarly, `enabled="never"` will forcibly disable colors, unconditionally returning `False`.
+    By default, `enabled="auto"` and the stream will be checked for support as expected.
+    This flag is purely for convenience.
+    Using 'should_color(file) or force_enabled' would have the same effect.
 
     [`NO_COLOR`]: https://no-color.org/)
     [`CLICLOR`]: https://no-color.org/)
@@ -65,6 +73,16 @@ def should_color(
             raise ValueError(f"Invalid `file`: {file!r}")
         if TYPE_CHECKING:
             assert isinstance(file, TextIO)  # needed because sys.stderr has type `Any`
+    if enabled == "auto":
+        pass  # default behavior
+    elif isinstance(enabled, bool):
+        return enabled
+    elif enabled == "always":
+        return True
+    elif enabled == "never":
+        return False
+    elif not isinstance(enabled, bool):
+        raise ValueError(f"Unexpected value for `enabled`: {enabled!r}")
     if TYPE_CHECKING:
         assert_type(file, Union[IO[bytes], IO[str]])
     if os.getenv("NO_COLOR"):
@@ -104,7 +122,6 @@ def apply_ansi_style(
     bold: bool = False,
     underline: bool = False,
     file: KnownStream | IO[AnyStr] = "stdout",
-    # TODO: Should this flag be part of `should_color`?
     enabled: EnabledSpec = "auto",
 ) -> str:
     """
@@ -122,14 +139,8 @@ def apply_ansi_style(
     :param color: The color to apply to the text, or `None` if the color should not be changed.
     :return: The text with appropriate styling applied.
     """
-    if enabled == "auto":
-        enabled = should_color()
-    elif enabled == "always":
-        enabled = True
-    elif enabled == "never":
-        enabled = False
-    elif not isinstance(enabled, bool):
-        raise ValueError(f"Unexpected value for `enabled`: {enabled!r}")
+    if not should_color(enabled=enabled, file=file):
+        return text
     begin_style = []
     if bold:
         begin_style.append(1)

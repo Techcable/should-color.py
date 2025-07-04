@@ -15,11 +15,11 @@ check: mypy lint
 lint: _lint && check-format
 
 _lint:
-    -ruff check src
+    -uv run ruff check src
 
 fix: && _format fix-spelling
     @# Failure to fix should not prevent formatting
-    -ruff check --fix src
+    -uv run ruff check --fix src
 
 build: mypy && _test check-format
     # Build project
@@ -48,28 +48,23 @@ _test_ver pyver:
 # Check for spelling issues
 spellcheck:
     # Check for obvious spelling issues
-    typos
+    uv run typos
 
 # Fix obvious spelling issues
 fix-spelling:
     # Fix obvious spelling issues
-    typos --write-changes
+    uv run typos --write-changes
 
 # Checks for formatting issues
 check-format: && spellcheck
-    @# Invoking ruff directly instead of through uv tool run saves ~12ms per command,
-    @# reducing format --check src time from ~20ms to ~8ms.
-    @# it reduces time for `ruff --version` from ~16ms to ~3ms.
-    @# Running through `uv tool run` also frequently requires refresh of
-    @# project dependencies, which can add an additional 100+ ms
-    ruff format --check .
-    ruff check --select I --output-format concise .
+    uv run ruff format --check .
+    uv run ruff check --select I --output-format concise .
     # Checking TOML file formatting
-    RUST_LOG=WARN taplo format --check
+    RUST_LOG=WARN uv run taplo format --check
 
 format: _format && spellcheck
 
 _format:
-    ruff format .
-    ruff check --select 'I' --fix .
-    RUST_LOG=WARN taplo format
+    uv run ruff format .
+    uv run ruff check --select 'I' --fix .
+    RUST_LOG=WARN uv run taplo format

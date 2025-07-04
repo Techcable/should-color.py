@@ -37,19 +37,8 @@ else:
         return x
 
 
-def _deprecated_implicit_file() -> None:
-    """Raise a warning indicating implicit file is deprecated."""
-    import warnings  # noqa: PLC0415 - no import penalty to good code
-
-    warnings.warn(
-        'Please explicitly specify `file="stdout"`  (default will be removed in v0.2.0)',
-        DeprecationWarning,
-        stacklevel=2,
-    )
-
-
 def should_color(
-    file: KnownStream | IO[str] | IO[bytes] | None = None,
+    file: KnownStream | IO[str] | IO[bytes],
     *,
     enabled: EnabledSpec = "auto",
 ) -> bool:
@@ -75,9 +64,6 @@ def should_color(
     [`CLICLOR`]: https://no-color.org/)
     [`isatty`]: https://docs.python.org/3/library/io.html#io.IOBase.isatty
     """
-    if file is None:
-        _deprecated_implicit_file()
-        file = "stdout"
     if isinstance(file, str):
         if file == "stdout":
             file = sys.stdout
@@ -135,7 +121,7 @@ def apply_ansi_style(
     color: SimpleColor | None = None,
     bold: bool = False,
     underline: bool = False,
-    file: KnownStream | IO[AnyStr] | None = None,
+    file: KnownStream | IO[AnyStr],
     enabled: EnabledSpec = "auto",
 ) -> str:
     """
@@ -153,8 +139,6 @@ def apply_ansi_style(
     :param color: The color to apply to the text, or `None` if the color should not be changed.
     :return: The text with appropriate styling applied.
     """
-    if file:
-        _deprecated_implicit_file()
     if not should_color(enabled=enabled, file=file):
         return text
     begin_style = []

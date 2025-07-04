@@ -30,11 +30,11 @@ if TYPE_CHECKING:
 
     from typing_extensions import TypeAlias, assert_type
 
-    _KnownStream: TypeAlias = Literal["stdout", "stderr"]
-    _SimpleColor: TypeAlias = Literal[
+    KnownStream: TypeAlias = Literal["stdout", "stderr"]
+    SimpleColor: TypeAlias = Literal[
         "black", "red", "green", "yellow", "blue", "purple"
     ]
-    _EnabledSpec: TypeAlias = Union[bool, Literal["always", "never", "auto"]]
+    EnabledSpec: TypeAlias = Union[bool, Literal["always", "never", "auto"]]
 else:
     # fallback
     def cast(tp, x, /):
@@ -42,7 +42,7 @@ else:
 
 
 def should_color(
-    file: Union[_KnownStream, IO[str], IO[bytes]] = "stdout",
+    file: Union[KnownStream, IO[str], IO[bytes]] = "stdout",
     /,
 ) -> bool:
     """
@@ -98,12 +98,12 @@ def apply_ansi_style(
     text: str,
     /,
     *,
-    color: Union[_SimpleColor, None] = None,
+    color: Union[SimpleColor, None] = None,
     bold: bool = False,
     underline: bool = False,
-    file: Union[_KnownStream, IO[AnyStr]] = "stdout",
+    file: Union[KnownStream, IO[AnyStr]] = "stdout",
     # TODO: Should this flag be part of `should_color`?
-    enabled: Union[bool, Literal["always", "never", "auto"]] = "auto",
+    enabled: EnabledSpec = "auto",
 ) -> str:
     """
     Conditionally apply ANSI styling to the specified text.
@@ -188,5 +188,8 @@ __all__ = (
     "platform_supports_colors",
     "should_color",
     "apply_ansi_style",
+    "KnownStream",
+    "SimpleColor",
+    "EnabledSpec",
     "__version__",
 )

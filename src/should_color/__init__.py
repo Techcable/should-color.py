@@ -159,6 +159,26 @@ def apply_ansi_style(
     return f"{_build_ansi_code(begin_style)}{text}{reset_code}"
 
 
+def apply_bold(
+    text: str,
+    /,
+    *,
+    file: KnownStream | IO[AnyStr],
+    enabled: EnabledSpec = "auto",
+) -> str:
+    """
+    Apply bold ANSI styling to the specified text.
+
+    This is a convenience wrapper for [`apply_ansi_style`] which only sets `bold=True`.
+    All available options have the same meaning as [`apply_ansi_style`].
+    """
+    return apply_ansi_style(
+        text,
+        file=file,
+        enabled=enabled,
+    )
+
+
 _cached_supports_colors: bool | None = None
 
 
@@ -203,6 +223,7 @@ __all__ = (
     "SimpleColor",
     "__version__",
     "apply_ansi_style",
+    "apply_bold",
     "platform_supports_colors",
     "should_color",
 )

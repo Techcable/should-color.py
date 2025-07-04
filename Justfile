@@ -15,11 +15,11 @@ check: mypy lint
 lint: _lint && check-format
 
 _lint:
-    -uv run ruff check src
+    -uv run ruff check
 
 fix: && _format fix-spelling
     @# Failure to fix should not prevent formatting
-    -uv run ruff check --fix src
+    -uv run ruff check --fix --unsafe-fixes
 
 build: mypy && _test check-format
     # Build project

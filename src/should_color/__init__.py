@@ -20,9 +20,7 @@ if TYPE_CHECKING:
     from typing import (
         IO,
         AnyStr,
-        Dict,
         Literal,
-        Optional,
         Sequence,
         TextIO,
         Union,
@@ -31,18 +29,16 @@ if TYPE_CHECKING:
     from typing_extensions import TypeAlias, assert_type
 
     KnownStream: TypeAlias = Literal["stdout", "stderr"]
-    SimpleColor: TypeAlias = Literal[
-        "black", "red", "green", "yellow", "blue", "purple"
-    ]
+    SimpleColor: TypeAlias = Literal["black", "red", "green", "yellow", "blue", "purple"]
     EnabledSpec: TypeAlias = Union[bool, Literal["always", "never", "auto"]]
 else:
     # fallback
-    def cast(tp, x, /):
+    def cast(tp, x, /):  # noqa
         return x
 
 
 def should_color(
-    file: Union[KnownStream, IO[str], IO[bytes]] = "stdout",
+    file: KnownStream | IO[str] | IO[bytes] = "stdout",
     /,
 ) -> bool:
     """
@@ -50,9 +46,16 @@ def should_color(
 
     If no stream is specified, this checks the standard output.
 
-    This respects [`NO_COLOR`](https://no-color.org/) and [`CLICOLOR`](https://bixense.com/clicolors/) environment variables.
-    If these are net set, this will return `True` if the specified file [`isatty`](https://docs.python.org/3/library/io.html#io.IOBase.isatty)
+    This respects [`NO_COLOR`] and [`CLICOLOR`] environment variables.
+    If these are net set, this will return `True` if the specified file [`isatty`]
     and the platform supports colors (isn't old windows).
+
+    On windows, if colorama is installed, this will implicitly call `just_fix_windows_console`.
+    See [`platform_supports_colors`] for details.
+
+    [`NO_COLOR`]: https://no-color.org/)
+    [`CLICLOR`]: https://no-color.org/)
+    [`isatty`]: https://docs.python.org/3/library/io.html#io.IOBase.isatty
     """
     if isinstance(file, str):
         if file == "stdout":
@@ -74,7 +77,7 @@ def should_color(
 
 
 def _build_ansi_code(
-    parts: Sequence[Union[str, int]],
+    parts: Sequence[str | int],
     /,
 ) -> str:
     if not parts:
@@ -82,7 +85,7 @@ def _build_ansi_code(
     return f"\x1b[{';'.join(map(str, parts))}m"
 
 
-_COLOR_OFFSETS: Dict[str, int] = {
+_COLOR_OFFSETS: dict[str, int] = {
     "black": 0,
     "red": 1,
     "green": 2,
@@ -98,10 +101,10 @@ def apply_ansi_style(
     text: str,
     /,
     *,
-    color: Union[SimpleColor, None] = None,
+    color: SimpleColor | None = None,
     bold: bool = False,
     underline: bool = False,
-    file: Union[KnownStream, IO[AnyStr]] = "stdout",
+    file: KnownStream | IO[AnyStr] = "stdout",
     # TODO: Should this flag be part of `should_color`?
     enabled: EnabledSpec = "auto",
 ) -> str:
@@ -146,7 +149,7 @@ def apply_ansi_style(
     return f"{_build_ansi_code(begin_style)}{text}{reset_code}"
 
 
-_cached_supports_colors: Optional[bool] = None
+_cached_supports_colors: bool | None = None
 
 
 def platform_supports_colors() -> bool:
@@ -172,9 +175,9 @@ def platform_supports_colors() -> bool:
         _cached_supports_colors = True
         return True
     try:
-        import colorama
+        import colorama  # noqa: PLC0415
 
-        getattr(colorama, "just_fix_windows_console")
+        getattr(colorama, "just_fix_windows_console")  # noqa: B009
     except (ImportError, AttributeError):
         _cached_supports_colors = False
         return False  # unsupported
@@ -185,11 +188,11 @@ def platform_supports_colors() -> bool:
 
 
 __all__ = (
-    "platform_supports_colors",
-    "should_color",
-    "apply_ansi_style",
+    "EnabledSpec",
     "KnownStream",
     "SimpleColor",
-    "EnabledSpec",
     "__version__",
+    "apply_ansi_style",
+    "platform_supports_colors",
+    "should_color",
 )

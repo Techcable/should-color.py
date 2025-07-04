@@ -55,14 +55,6 @@ Source = "https://github.com/Techcable/should-color.py"
 requires = ["setuptools>=61.0", "setuptools_scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
 
-[tool.ruff.lint]
-extend-select = [
-    "D", # pydocstyle
-]
-
-[tool.ruff.lint.pydocstyle]
-convention = "pep257"
-
 [tool.setuptools_scm]
 # NOTE: Using a version file avoids some overhead
 #

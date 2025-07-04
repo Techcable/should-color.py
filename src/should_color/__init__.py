@@ -39,7 +39,6 @@ else:
 
 def should_color(
     file: KnownStream | IO[str] | IO[bytes] = "stdout",
-    /,
 ) -> bool:
     """
     Determine if ANSI colors should be used when printing to the specified stream.
